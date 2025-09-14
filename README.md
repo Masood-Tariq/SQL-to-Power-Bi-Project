@@ -1,4 +1,4 @@
-# SQL-to-Power-Bi-Project
+# SQL 1st Project
 This is my first Project for SQL to Power BI based on the KCC Database.
 
 KCC - SQL to Power BI Project
