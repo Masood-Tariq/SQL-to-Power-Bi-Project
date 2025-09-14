@@ -1,0 +1,97 @@
+/*KCC - SQL to Power Bi Project
+Database Kevin Cookie Company (KCC)
+Courtesy: Kevin Stratvert
+Website: https://www.kevincookiecompany.com/
+*/
+
+-- 1- Calculate Total Quantity and Total Cost by joining Product, Order Product tables and Group By CookieName
+select  p.CookieName,
+sum(quantity) as 'Total Quantity',
+sum(CostPerCookie) as 'Total Cost'
+from Product p
+left join Order_Product op
+on p.CookieID = op.CookieID
+group by p.CookieName
+
+
+-- 2- Calculate Total Quantity from Order Product Table
+select SUM(quantity) as Quantity
+from Order_Product
+
+-- 3- Calculate Total Orders from Order Table and group by customerid
+select CustomerID,
+count(orderid) as 'Total Orders'
+from Orders
+group by CustomerID
+
+
+-- 4- Calculate Total Revene per Cookie and Total Cost per Cookie from Product Table and Group By Cookie Name
+select CookieName,
+SUM(revenuepercookie) as 'Total Revenu',
+SUM(costpercookie) as 'Total Cost'
+from Product
+group by CookieName
+
+
+-- 5- Calculate Total Cost and Total Sales with Grand Total by joining two tables
+select p.CookieName,
+SUM(Quantity * costpercookie) as 'Total Cost',
+SUM(Quantity * revenuepercookie) as 'Total Sales'
+from Product p
+left join Order_Product op
+on op.CookieID = p.CookieID
+group by rollup (p.CookieName) 
+
+
+-- Calculate Total Cost % and Total Sales % using subquery and Left Join
+SELECT 
+    p.CookieName,
+    SUM(Quantity * costpercookie) AS 'Total Cost',
+    SUM(Quantity * revenuepercookie) AS 'Total Sales',
+    (SUM(Quantity * costpercookie) * 100.0) / NULLIF(SUM(SUM(Quantity * costpercookie)) OVER (), 0) AS 'Cost %',
+    (SUM(Quantity * revenuepercookie) * 100.0) / NULLIF(SUM(SUM(Quantity * revenuepercookie)) OVER (), 0) AS 'Sales %'
+FROM 
+    Product p
+LEFT JOIN 
+    Order_Product op ON op.CookieID = p.CookieID
+GROUP BY 
+    p.CookieName
+
+
+-- Calculate Total Sales by Seattle City
+SELECT *
+FROM 
+(
+    SELECT 
+        c.city,
+        SUM(Quantity * costpercookie) AS TotalCost,
+        SUM(Quantity * revenuepercookie) AS TotalSales
+    FROM 
+        Product p
+    LEFT JOIN 
+        Order_Product op 
+		ON op.CookieID = p.CookieID
+    LEFT JOIN 
+        Orders o 
+		ON o.OrderID = op.OrderID
+    LEFT JOIN 
+        Customers c 
+		ON c.CustomerID = o.CustomerID
+    GROUP BY 
+        c.City WITH ROLLUP
+) AS sq
+WHERE 
+    sq.City = 'Seattle';
+
+
+
+
+
+
+
+
+
+
+	
+
+
